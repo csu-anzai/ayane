@@ -1,12 +1,12 @@
 enum kind_t {
-  y_bool,
-  y_call,
-  y_const,
-  y_ind,
-  y_int,
-  y_rat,
-  y_real,
-  y_var,
+  Tbool,
+  Tcall,
+  Tconst,
+  Tind,
+  Tint,
+  Trat,
+  Treal,
+  Tvar,
 };
 
 struct type {
@@ -26,5 +26,5 @@ extern type Rat;
 extern type Real;
 
 // construct
-type *make_type(sym *name);
-type *make_type(type *ret, const vec<type *> &params);
+type *mkty(sym *name);
+type *mkty(type *ret, const vec<type *> &params);

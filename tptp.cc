@@ -275,7 +275,7 @@ type *read_type() {
     while (eat('*'));
     expect(')');
     expect('>');
-    return make_type(read_type(), v);
+    return mkty(read_type(), v);
   }
   case k_dollar_word:
     switch (keyword(toksym)) {
@@ -303,7 +303,7 @@ type *read_type() {
     lex();
     if (name->val)
       return (type *)name->val;
-    auto ty = make_type(name);
+    auto ty = mkty(name);
     name->val = ty;
     name->is_term = false;
     return ty;
@@ -335,7 +335,7 @@ void typing() {
         err("Already a term");
       }
     } else {
-      name->val = make_type(name);
+      name->val = mkty(name);
       name->is_term = false;
     }
     lex();
