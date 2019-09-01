@@ -1,6 +1,8 @@
 struct sym {
+  void *val;
   unsigned short n;
-  char s[0x20 - sizeof(unsigned short)];
+  bool is_term;
+  char s[0x20 - sizeof(void *) - sizeof(unsigned short) - sizeof(bool)];
 };
 
 extern sym keywords[];

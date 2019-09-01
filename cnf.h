@@ -1,0 +1,1 @@
+void cnf(term *a);

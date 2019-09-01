@@ -9,6 +9,13 @@
 #define O_BINARY 0
 #endif
 
+// SZS status codes
+const char *szs[] = {
+#define _(s) #s,
+#include "szs.h"
+#undef _
+};
+
 // current file
 const char *filename;
 // beginning of source text
@@ -20,7 +27,10 @@ const char *src;
 const char *toksrc;
 int tok;
 sym *toksym;
+term *tokterm;
 vec<char> buf;
+
+// source files
 
 srcfile::srcfile(const char *filename)
     : old_filename(::filename), old_filesrc(::filesrc), old_src(::src) {
@@ -80,6 +90,131 @@ srcfile::~srcfile() {
   ::filename = old_filename;
   ::filesrc = old_filesrc;
   ::src = old_src;
+}
+
+// metadata
+bool conjecture;
+int status;
+
+// arbitrary-precision numbers
+
+namespace {
+bool parse_sign() {
+  switch (*src) {
+  case '+':
+    ++src;
+    break;
+  case '-':
+    buf.push(*src++);
+    return true;
+  }
+  return false;
+}
+
+void digits() {
+  auto s = src;
+  if (!isdigit(*s)) {
+    toksrc = s;
+    err("digit expected");
+  }
+  do
+    buf.push(*s++);
+  while (isdigit(*s));
+  src = s;
+}
+} // namespace
+
+void parse_number() {
+  buf.n=0;
+  auto sign = parse_sign();
+  auto s = src;
+  digits();
+  switch (*src) {
+  case '.':
+  case 'E':
+  case 'e': {
+    // integer part
+    buf.push(0);
+    mpz_t integer;
+    mpz_init_set_str(integer, buf.p + sign, 10);
+
+    // decimal part
+    mpz_t decimal;
+    mpz_init(decimal);
+    unsigned scale = 0;
+    if (*src == '.') {
+      buf.n=0;
+      src++;
+      digits();
+      buf.push(0);
+      mpz_set_str(decimal, buf.p, 10);
+      scale = buf.n - 1;
+    }
+    mpz_t pow_scale;
+    mpz_init(pow_scale);
+    mpz_ui_pow_ui(pow_scale, 10, scale);
+
+    // mantissa
+    mpz_t mantissa;
+    mpz_init_set(mantissa, decimal);
+    mpz_addmul(mantissa, integer, pow_scale);
+    if (sign)
+      mpz_neg(mantissa, mantissa);
+
+    // exponent
+    bool exponent_sign = false;
+    unsigned long exponent = 0;
+    if (*src == 'e' || *src == 'E') {
+      auto s = ++src;
+      exponent_sign = parse_sign();
+      errno = 0;
+      exponent = strtoul(src, (char **)&src, 10);
+      if (errno) {
+        toksrc = s;
+        err(strerror(errno));
+      }
+    }
+    mpz_t pow_exponent;
+    mpz_init(pow_exponent);
+    mpz_ui_pow_ui(pow_exponent, 10, exponent);
+
+    // result
+    tokterm = atom(t_real, sizeof(mpq_t));
+    mpq_init(tokterm->rat_val);
+    mpq_set_num(tokterm->rat_val, mantissa);
+    mpq_set_den(tokterm->rat_val, pow_scale);
+    if (!exponent_sign)
+      mpz_mul(mpq_numref(tokterm->rat_val), mpq_numref(tokterm->rat_val),
+              pow_exponent);
+    else
+      mpz_mul(mpq_denref(tokterm->rat_val), mpq_denref(tokterm->rat_val),
+              pow_exponent);
+    mpq_canonicalize(tokterm->rat_val);
+
+    // cleanup
+    mpz_clear(integer);
+    mpz_clear(decimal);
+    mpz_clear(pow_scale);
+    mpz_clear(mantissa);
+    mpz_clear(pow_exponent);
+    break;
+  }
+  case '/':
+    buf.push(*src++);
+    digits();
+    buf.push(0);
+    tokterm = atom(t_rat, sizeof(mpq_t));
+    mpq_init(tokterm->rat_val);
+    if (mpq_set_str(tokterm->rat_val, buf.p, 10))
+      err("invalid number");
+    mpq_canonicalize(tokterm->rat_val);
+    break;
+  default:
+    buf.push(0);
+    tokterm = atom(t_int, sizeof(mpz_t));
+    mpz_init_set_str(tokterm->int_val, buf.p, 10);
+    break;
+  }
 }
 
 #ifdef _MSC_VER

@@ -16,18 +16,18 @@ void stacktrace() {
   auto nframes = CaptureStackBackTrace(1, FramesToCapture, stack, 0);
   const int MaxNameLen = 256;
   static char buf[sizeof(SYMBOL_INFO) + (MaxNameLen - 1) * sizeof(TCHAR)];
-  auto symbol = (SYMBOL_INFO *)buf;
-  symbol->MaxNameLen = MaxNameLen;
-  symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+  auto sym = (SYMBOL_INFO *)buf;
+  sym->MaxNameLen = MaxNameLen;
+  sym->SizeOfStruct = sizeof(SYMBOL_INFO);
   IMAGEHLP_LINE64 location;
   location.SizeOfStruct = sizeof location;
   for (int i = 0; i != nframes; ++i) {
     auto address = (DWORD64)(stack[i]);
-    SymFromAddr(process, address, 0, symbol);
+    SymFromAddr(process, address, 0, sym);
     DWORD displacement;
     if (SymGetLineFromAddr64(process, address, &displacement, &location))
-      fprintf(stderr, "%s:%u: ", location.FileName, location.LineNumber);
-    fprintf(stderr, "%s\n", symbol->Name);
+      fprintf(stderr, "%s:%lu: ", location.FileName, location.LineNumber);
+    fprintf(stderr, "%s\n", sym->Name);
   }
 #endif
 }

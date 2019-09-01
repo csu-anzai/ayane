@@ -9,33 +9,14 @@ template <class T, int small = 4> struct vec {
   T *p = v;
   T v[small];
 
+  vec(int n):n(n){
+    if (n <= cap)
+      return;
+    cap = n;
+      p = (T *)xmalloc(cap * sizeof(T));
+  }
+
   vec() : n(0) {}
-
-  vec(T a) : n(1) {
-    assert(n <= small);
-    v[0] = a;
-  }
-
-  vec(T a, T b) : n(2) {
-    assert(n <= small);
-    v[0] = a;
-    v[1] = b;
-  }
-
-  vec(T a, T b, T c) : n(3) {
-    assert(n <= small);
-    v[0] = a;
-    v[1] = b;
-    v[2] = c;
-  }
-
-  vec(T a, T b, T c, T d) : n(4) {
-    assert(n <= small);
-    v[0] = a;
-    v[1] = b;
-    v[2] = c;
-    v[3] = d;
-  }
 
   // move
   vec(vec &b) : n(b.n) {

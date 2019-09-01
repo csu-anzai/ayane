@@ -1,3 +1,13 @@
+// SZS status codes
+enum {
+#define _(s) s,
+#include "szs.h"
+#undef _
+  n_szs
+};
+
+extern const char *szs[];
+
 // current file
 extern const char *filename;
 // beginning of source text
@@ -9,8 +19,10 @@ extern const char *src;
 extern const char *toksrc;
 extern int tok;
 extern sym *toksym;
+extern term *tokterm;
 extern vec<char> buf;
 
+// source files
 struct srcfile {
   // remember previous file
   // for nested includes
@@ -23,6 +35,13 @@ struct srcfile {
   srcfile(const char *filename);
   ~srcfile();
 };
+
+// metadata
+extern bool conjecture;
+extern int status;
+
+// arbitrary-precision numbers
+void parse_number();
 
 // error
 #ifdef _MSC_VER
