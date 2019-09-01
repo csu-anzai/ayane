@@ -389,7 +389,7 @@ term *defined_functor(tag_t tag, int arity) {
   lex();
   vec<term *> v;
   args(v, arity);
-  return make(tag, v);
+  return mk(tag, v);
 }
 
 term *atomic_term() {
@@ -407,8 +407,8 @@ term *atomic_term() {
       args(v);
       for (auto i = v.begin(); i != v.end(); ++i)
         for (auto j = v.begin(); j != i; ++j)
-          clauses.push(make(t_not, make(t_eq, *i, *j)));
-      return make(t_and, clauses);
+          clauses.push(mk(t_not, mk(t_eq, *i, *j)));
+      return mk(t_and, clauses);
     }
     case w_false:
       lex();
@@ -418,11 +418,11 @@ term *atomic_term() {
     case w_greater:
       lex();
       args(v, 2);
-      return make(t_less, v[1], v[0]);
+      return mk(t_less, v[1], v[0]);
     case w_greatereq:
       lex();
       args(v, 2);
-      return make(t_or, make(t_less, v[1], v[0]), make(t_eq, v[1], v[0]));
+      return mk(t_or, mk(t_less, v[1], v[0]), mk(t_eq, v[1], v[0]));
     case w_is_int:
       return defined_functor(t_is_int, 1);
     case w_is_rat:
@@ -432,7 +432,7 @@ term *atomic_term() {
     case w_lesseq:
       lex();
       args(v, 2);
-      return make(t_or, make(t_less, v[0], v[1]), make(t_eq, v[0], v[1]));
+      return mk(t_or, mk(t_less, v[0], v[1]), mk(t_eq, v[0], v[1]));
     case w_product:
       return defined_functor(t_mul, 2);
     case w_quotient:
@@ -503,7 +503,7 @@ term *atomic_term() {
 
     vec<term *> v;
     args(v);
-    return make(t_call, (term *)name->val, v);
+    return mk(t_call, (term *)name->val, v);
   }
   }
   err("syntax error");
@@ -514,10 +514,10 @@ term *infix_unary() {
   switch (tok) {
   case '=':
     lex();
-    return make(t_eq, a, atomic_term());
+    return mk(t_eq, a, atomic_term());
   case o_ne:
     lex();
-    return make(t_not, make(t_eq, a, atomic_term()));
+    return mk(t_not, mk(t_eq, a, atomic_term()));
   }
   return a;
 }
@@ -543,7 +543,7 @@ term *quantified(tag_t tag) {
   } while (eat(','));
   expect(']');
   expect(':');
-  auto a = make(tag, unitary_formula(), vars);
+  auto a = mk(tag, unitary_formula(), vars);
   for (auto i = old.rbegin(); i != old.rend(); ++i)
     i->first->val = i->second;
   return a;
@@ -563,7 +563,7 @@ term *unitary_formula() {
     return quantified(t_exists);
   case '~':
     lex();
-    return make(t_not, unitary_formula());
+    return mk(t_not, unitary_formula());
   }
   return infix_unary();
 }
@@ -577,16 +577,16 @@ term *logic_formula() {
     do
       v.push(unitary_formula());
     while (eat('&'));
-    return make(t_and, a, v);
+    return mk(t_and, a, v);
   case '|':
     lex();
     do
       v.push(unitary_formula());
     while (eat('|'));
-    return make(t_or, a, v);
+    return mk(t_or, a, v);
   case o_eqv:
     lex();
-    return make(t_eqv, a, unitary_formula());
+    return mk(t_eqv, a, unitary_formula());
   case o_imp:
     lex();
     return implies(a, unitary_formula());
@@ -595,13 +595,13 @@ term *logic_formula() {
     return implies(unitary_formula(), a);
   case o_nand:
     lex();
-    return make(t_not, make(t_and, a, unitary_formula()));
+    return mk(t_not, mk(t_and, a, unitary_formula()));
   case o_nor:
     lex();
-    return make(t_not, make(t_or, a, unitary_formula()));
+    return mk(t_not, mk(t_or, a, unitary_formula()));
   case o_xor:
     lex();
-    return make(t_not, make(t_eqv, a, unitary_formula()));
+    return mk(t_not, mk(t_eqv, a, unitary_formula()));
   }
   return a;
 }
@@ -667,7 +667,7 @@ void annotated_formula() {
     auto a = logic_formula();
     if (role == keywords + w_conjecture) {
       get_free_vars(a);
-      a = make(t_not, make(t_all, a, free_vars));
+      a = mk(t_not, mk(t_all, a, free_vars));
       conjecture = true;
     }
     cnf(a);

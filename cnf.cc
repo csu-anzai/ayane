@@ -6,7 +6,7 @@ term *skolem(type *ty, const vec<term *> &v) {
   if (!v.n)
     return a;
   // don't care about params because type check is already done
-  return make(t_call, a, v);
+  return mk(t_call, a, v);
 }
 
 term *skolem(type *ty, const vec<std::pair<term *, term *>> &v) {
@@ -38,7 +38,7 @@ term *ren_eqv(term *a) {
     return a;
   get_free_vars(a);
   auto b = skolem(0, free_vars);
-  cnf(make(t_and, implies(b, a), implies(a, b)));
+  cnf(mk(t_and, implies(b, a), implies(a, b)));
   return b;
 }
 
@@ -62,7 +62,7 @@ term *nnf_args(vec<std::pair<term *, term *>> &all_vars,
   vec<term *> v(a->n);
   for (auto i : a)
     v[i] = nnf(all_vars, exists_vars, pol, at(a, i));
-  return make(tag, v);
+  return mk(tag, v);
 }
 
 term *nnf_literal(bool pol, term *a) {
@@ -74,13 +74,13 @@ term *nnf_literal(bool pol, term *a) {
   case t_or:
     assert(false);
   case t_false:
-    return make(!pol);
+    return mk(!pol);
   case t_not:
     return nnf_literal(!pol, at(a, 0));
   case t_true:
-    return make(pol);
+    return mk(pol);
   }
-  return pol ? a : make(t_not, a);
+  return pol ? a : mk(t_not, a);
 }
 
 term *nnf_all(vec<std::pair<term *, term *>> &all_vars,
@@ -115,8 +115,8 @@ term *nnf(vec<std::pair<term *, term *>> &all_vars,
   case t_eqv: {
     auto x = ren_eqv(nnf(all_vars, exists_vars, true, at(a, 0)));
     auto y = ren_eqv(nnf(all_vars, exists_vars, true, at(a, 1)));
-    return make(t_and, make(t_or, nnf_literal(false, x), nnf_literal(pol, y)),
-                make(t_or, nnf_literal(true, x), nnf_literal(!pol, y)));
+    return mk(t_and, mk(t_or, nnf_literal(false, x), nnf_literal(pol, y)),
+              mk(t_or, nnf_literal(true, x), nnf_literal(!pol, y)));
   }
   case t_all:
     if (pol)
@@ -129,11 +129,11 @@ term *nnf(vec<std::pair<term *, term *>> &all_vars,
     else
       return nnf_all(all_vars, exists_vars, pol, a);
   case t_false:
-    return make(!pol);
+    return mk(!pol);
   case t_or:
     return nnf_args(all_vars, exists_vars, pol, a, pol ? t_or : t_and);
   case t_true:
-    return make(pol);
+    return mk(pol);
   case t_var:
     for (auto p : all_vars)
       if (p.first == a)
@@ -147,7 +147,7 @@ term *nnf(vec<std::pair<term *, term *>> &all_vars,
   }
   if (a->n)
     a = nnf_args(all_vars, exists_vars, true, a, a->tag);
-  return pol ? a : make(t_not, a);
+  return pol ? a : mk(t_not, a);
 }
 
 // distribute OR into AND
@@ -180,7 +180,7 @@ term *distribute(term *a) {
       }
       v.push(b);
     }
-    return make(t_and, v);
+    return mk(t_and, v);
   }
   case t_or: {
     // flat layer of ANDs
@@ -202,10 +202,10 @@ term *distribute(term *a) {
     for (;;) {
       for (int i = 0; i != ands.n; ++i)
         or_args[i] = and_at(ands[i], j[i]);
-      ors.push(make(t_or, or_args));
+      ors.push(mk(t_or, or_args));
       for (int i = ands.n;;) {
         if (!i)
-          return make(t_and, ors);
+          return mk(t_and, ors);
         --i;
         if (++j[i] < and_size(ands[i]))
           break;
@@ -250,7 +250,7 @@ void cnf(term *a) {
   // bind all variables
   get_free_vars(a);
   if (free_vars.n)
-    a = make(t_all, a, free_vars);
+    a = mk(t_all, a, free_vars);
 
   // negation normal form
   vec<std::pair<term *, term *>> all_vars;

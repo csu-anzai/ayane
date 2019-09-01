@@ -65,18 +65,18 @@ struct term {
 // globals
 extern term false1;
 extern term true1;
-inline term *make(bool b) { return b ? &true1 : &false1; }
+inline term *mk(bool b) { return b ? &true1 : &false1; }
 
 // construct
 term *atom(tag_t tag, int bytes);
 term *constant(type *ty, sym *name);
 term *var(type *ty);
 
-term *make(tag_t tag, term *a);
-term *make(tag_t tag, term *a, term *b);
-term *make(tag_t tag, term *a, term *b, term *c);
-term *make(tag_t tag, term *a, const vec<term *> &v);
-term *make(tag_t tag, const vec<term *> &v);
+term *mk(tag_t tag, term *a);
+term *mk(tag_t tag, term *a, term *b);
+term *mk(tag_t tag, term *a, term *b, term *c);
+term *mk(tag_t tag, term *a, const vec<term *> &v);
+term *mk(tag_t tag, const vec<term *> &v);
 
 term *implies(term *a, term *b);
 

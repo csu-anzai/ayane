@@ -95,20 +95,20 @@ static term *compound(tag_t tag, int n) {
   return r;
 }
 
-term *make(tag_t tag, term *a) {
+term *mk(tag_t tag, term *a) {
   auto r = compound(tag, 1);
   r->args[0] = a;
   return r;
 }
 
-term *make(tag_t tag, term *a, term *b) {
+term *mk(tag_t tag, term *a, term *b) {
   auto r = compound(tag, 2);
   r->args[0] = a;
   r->args[1] = b;
   return r;
 }
 
-term *make(tag_t tag, term *a, term *b, term *c) {
+term *mk(tag_t tag, term *a, term *b, term *c) {
   auto r = compound(tag, 3);
   r->args[0] = a;
   r->args[1] = b;
@@ -116,20 +116,20 @@ term *make(tag_t tag, term *a, term *b, term *c) {
   return r;
 }
 
-term *make(tag_t tag, term *a, const vec<term *> &v) {
+term *mk(tag_t tag, term *a, const vec<term *> &v) {
   auto r = compound(tag, 1 + v.n);
   r->args[0] = a;
   memcpy(r->args + 1, v.p, v.n * sizeof a);
   return r;
 }
 
-term *make(tag_t tag, const vec<term *> &v) {
+term *mk(tag_t tag, const vec<term *> &v) {
   auto r = compound(tag, v.n);
   memcpy(r->args, v.p, v.n * sizeof(term *));
   return r;
 }
 
-term *implies(term *a, term *b) { return make(t_or, make(t_not, a), b); }
+term *implies(term *a, term *b) { return mk(t_or, mk(t_not, a), b); }
 
 namespace {
 vec<term *> bound_vars;
