@@ -21,7 +21,7 @@ loop:
     src = s + 1;
     goto loop;
   case '0':
-    if (!isdigit(s[1])) {
+    if (!('0' <= s[1] && s[1] <= '9')) {
       src = s + 1;
       tok = k_zero;
       return;
@@ -37,7 +37,7 @@ loop:
   case '9':
     do
       ++s;
-    while (isdigit(*s));
+    while ('0' <= *s && *s <= '9');
     toksym = intern(src, s - src);
     src = s;
     tok = k_num;
@@ -77,7 +77,7 @@ void read_dimacs(const char *filename) {
   srcfile file(filename);
   lex();
   if (tok == 'p') {
-    while (isspace(*src))
+    while (*src == ' ')
       ++src;
 
     if (!(src[0] == 'c' && src[1] == 'n' && src[2] == 'f'))

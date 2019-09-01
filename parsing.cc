@@ -113,13 +113,13 @@ bool parse_sign() {
 
 void digits() {
   auto s = src;
-  if (!isdigit(*s)) {
+  if (!('0' <= *s && *s <= '9')) {
     toksrc = s;
-    err("digit expected");
+    err("Expected digit");
   }
   do
     buf.push(*s++);
-  while (isdigit(*s));
+  while ('0' <= *s && *s <= '9');
   src = s;
 }
 } // namespace

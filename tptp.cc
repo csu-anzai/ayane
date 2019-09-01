@@ -49,8 +49,8 @@ void quote() {
   while (*s != q) {
     if (*s == '\\')
       ++s;
-    if (!isprint(*s))
-      err("unclosed quote");
+    if (*(unsigned char *)s < ' ')
+      err("Unclosed quote");
     buf.push(*s++);
   }
   src = s + 1;
@@ -105,7 +105,7 @@ loop:
     goto loop;
   case '+':
   case '-':
-    if (isdigit(s[1])) {
+    if ('0' <= s[1] && s[1] <= '9') {
       tok = k_term;
       parse_number();
       return;
