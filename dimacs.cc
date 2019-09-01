@@ -2,9 +2,9 @@
 
 namespace {
 enum {
-  k_eof,
-  k_num,
-  k_zero,
+  o_eof,
+  o_num,
+  o_zero,
 };
 
 void lex() {
@@ -23,7 +23,7 @@ loop:
   case '0':
     if (!('0' <= s[1] && s[1] <= '9')) {
       src = s + 1;
-      tok = k_zero;
+      tok = o_zero;
       return;
     }
   case '1':
@@ -40,7 +40,7 @@ loop:
     while ('0' <= *s && *s <= '9');
     toksym = intern(src, s - src);
     src = s;
-    tok = k_num;
+    tok = o_num;
     return;
   case 'c':
 #ifdef DEBUG
@@ -59,7 +59,7 @@ loop:
     src = strchr(s, '\n');
     goto loop;
   case 0:
-    tok = k_eof;
+    tok = o_eof;
     return;
   }
   src = s + 1;
@@ -85,11 +85,11 @@ void read_dimacs(const char *filename) {
     src += 3;
     lex();
 
-    if (tok != k_num)
+    if (tok != o_num)
       err("Expected count");
     lex();
 
-    if (tok != k_num)
+    if (tok != o_num)
       err("Expected count");
     lex();
   }
@@ -98,14 +98,14 @@ void read_dimacs(const char *filename) {
     case '-':
       neg.push(num());
       break;
-    case k_eof:
+    case o_eof:
       if (neg.n | pos.n)
         make_clause();
       return;
-    case k_num:
+    case o_num:
       pos.push(num());
       break;
-    case k_zero:
+    case o_zero:
       make_clause();
       lex();
       break;

@@ -4,18 +4,18 @@ namespace {
 // tokenizer
 
 enum {
-  k_dollar_word,
-  k_eof,
-  k_eqv,
-  k_imp,
-  k_impr,
-  k_nand,
-  k_ne,
-  k_nor,
-  k_term,
-  k_var,
-  k_word,
-  k_xor,
+  o_dollar_word,
+  o_eof,
+  o_eqv,
+  o_imp,
+  o_impr,
+  o_nand,
+  o_ne,
+  o_nor,
+  o_term,
+  o_var,
+  o_word,
+  o_xor,
 };
 
 struct selection : std::unordered_set<term *> {
@@ -74,19 +74,19 @@ loop:
     switch (s[1]) {
     case '=':
       src = s + 2;
-      tok = k_ne;
+      tok = o_ne;
       return;
     }
     break;
   case '"':
-    tok = k_term;
+    tok = o_term;
     quote();
     tokterm = atom(t_distinct_object, sizeof(type *) + sizeof(sym *));
     tokterm->name = toksym;
     return;
   case '$':
     src = s + 1;
-    tok = k_dollar_word;
+    tok = o_dollar_word;
     word();
     return;
   case '%':
@@ -106,7 +106,7 @@ loop:
   case '+':
   case '-':
     if ('0' <= s[1] && s[1] <= '9') {
-      tok = k_term;
+      tok = o_term;
       parsenum();
       return;
     }
@@ -131,7 +131,7 @@ loop:
   case '7':
   case '8':
   case '9':
-    tok = k_term;
+    tok = o_term;
     parsenum();
     return;
   case '<':
@@ -139,16 +139,16 @@ loop:
     case '=':
       if (s[2] == '>') {
         src = s + 3;
-        tok = k_eqv;
+        tok = o_eqv;
         return;
       }
       src = s + 2;
-      tok = k_impr;
+      tok = o_impr;
       return;
     case '~':
       if (s[2] == '>') {
         src = s + 3;
-        tok = k_xor;
+        tok = o_xor;
         return;
       }
       toksrc = s + 1;
@@ -159,7 +159,7 @@ loop:
     switch (s[1]) {
     case '>':
       src = s + 2;
-      tok = k_imp;
+      tok = o_imp;
       return;
     }
     break;
@@ -189,11 +189,11 @@ loop:
   case 'X':
   case 'Y':
   case 'Z':
-    tok = k_var;
+    tok = o_var;
     word();
     return;
   case '\'':
-    tok = k_word;
+    tok = o_word;
     quote();
     return;
   case 'a':
@@ -222,23 +222,23 @@ loop:
   case 'x':
   case 'y':
   case 'z':
-    tok = k_word;
+    tok = o_word;
     word();
     return;
   case '~':
     switch (s[1]) {
     case '&':
       src = s + 2;
-      tok = k_nand;
+      tok = o_nand;
       return;
     case '|':
       src = s + 2;
-      tok = k_nor;
+      tok = o_nor;
       return;
     }
     break;
   case 0:
-    tok = k_eof;
+    tok = o_eof;
     return;
   }
   src = s + 1;
@@ -247,19 +247,19 @@ loop:
 
 // parser
 
-bool eat(int k) {
-  if (tok == k) {
+bool eat(int o) {
+  if (tok == o) {
     lex();
     return true;
   }
   return false;
 }
 
-void expect(char k) {
-  if (eat(k))
+void expect(char o) {
+  if (eat(o))
     return;
   char buf[16];
-  sprintf(buf, "Expected '%c'", k);
+  sprintf(buf, "Expected '%c'", o);
   err(buf);
 }
 
@@ -277,7 +277,7 @@ type *read_type() {
     expect('>');
     return mkty(read_type(), v);
   }
-  case k_dollar_word:
+  case o_dollar_word:
     switch (keyword(toksym)) {
     case w_i:
       lex();
@@ -296,7 +296,7 @@ type *read_type() {
       return &Real;
     }
     err("unknown word");
-  case k_word: {
+  case o_word: {
     auto name = toksym;
     if (name->val && name->is_term)
       err("Expected type");
@@ -320,7 +320,7 @@ void typing() {
   }
 
   // name
-  if (tok != k_word)
+  if (tok != o_word)
     err("Expected role");
   auto name = toksym;
   auto s = toksrc;
@@ -328,7 +328,7 @@ void typing() {
   expect(':');
 
   // type: $tType
-  if (tok == k_dollar_word && toksym == keywords + w_tType) {
+  if (tok == o_dollar_word && toksym == keywords + w_tType) {
     if (name->val) {
       if (name->is_term) {
         toksrc = s;
@@ -394,7 +394,7 @@ term *defined_functor(tag_t tag, int arity) {
 
 term *atomic_term() {
   switch (tok) {
-  case k_dollar_word: {
+  case o_dollar_word: {
     vec<term *> v;
     switch (keyword(toksym)) {
     case w_ceiling:
@@ -469,12 +469,12 @@ term *atomic_term() {
     }
     err("unknown word");
   }
-  case k_term: {
+  case o_term: {
     auto a = tokterm;
     lex();
     return a;
   }
-  case k_var: {
+  case o_var: {
     auto name = toksym;
     if (name->val && !name->is_term)
       err("Expected term");
@@ -487,7 +487,7 @@ term *atomic_term() {
 
     return (term *)name->val;
   }
-  case k_word: {
+  case o_word: {
     auto name = toksym;
     if (name->val && !name->is_term)
       err("Expected term");
@@ -515,7 +515,7 @@ term *infix_unary() {
   case '=':
     lex();
     return make(t_eq, a, atomic_term());
-  case k_ne:
+  case o_ne:
     lex();
     return make(t_not, make(t_eq, a, atomic_term()));
   }
@@ -528,7 +528,7 @@ term *quantified(tag_t tag) {
   vec<std::pair<sym *, term *>> old;
   vec<term *> vars;
   do {
-    if (tok != k_var)
+    if (tok != o_var)
       err("Expected variable");
     auto name = toksym;
     lex();
@@ -584,22 +584,22 @@ term *logic_formula() {
       v.push(unitary_formula());
     while (eat('|'));
     return make(t_or, a, v);
-  case k_eqv:
+  case o_eqv:
     lex();
     return make(t_eqv, a, unitary_formula());
-  case k_imp:
+  case o_imp:
     lex();
     return implies(a, unitary_formula());
-  case k_impr:
+  case o_impr:
     lex();
     return implies(unitary_formula(), a);
-  case k_nand:
+  case o_nand:
     lex();
     return make(t_not, make(t_and, a, unitary_formula()));
-  case k_nor:
+  case o_nor:
     lex();
     return make(t_not, make(t_or, a, unitary_formula()));
-  case k_xor:
+  case o_xor:
     lex();
     return make(t_not, make(t_eqv, a, unitary_formula()));
   }
@@ -628,12 +628,12 @@ void ignore() {
 
 term *formula_name() {
   switch (tok) {
-  case k_term: {
+  case o_term: {
     auto a = tokterm;
     lex();
     return a;
   }
-  case k_word:
+  case o_word:
     return atomic_term();
   }
   err("Expected formula name");
@@ -652,7 +652,7 @@ void annotated_formula() {
   expect(',');
 
   // role
-  if (tok != k_word)
+  if (tok != o_word)
     err("Expected role");
   auto role = toksym;
   if (role == keywords + w_conjecture && conjecture)
@@ -691,7 +691,7 @@ void include() {
   expect('(');
 
   // filename
-  if (tok != k_word)
+  if (tok != o_word)
     err("Expected filename");
   auto n = strlen(tptp);
   vec<char> filename1(n + toksym->n + 2);
@@ -740,8 +740,8 @@ void include() {
 void read_tptp1(const char *filename) {
   srcfile file(filename);
   lex();
-  while (tok != k_eof) {
-    if (tok != k_word)
+  while (tok != o_eof) {
+    if (tok != o_word)
       err("Expected formula");
     switch (keyword(toksym)) {
     case w_cnf:
