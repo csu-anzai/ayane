@@ -41,7 +41,7 @@ extern bool conjecture;
 extern int status;
 
 // arbitrary-precision numbers
-void parse_number();
+void parsenum();
 
 // error
 #ifdef _MSC_VER

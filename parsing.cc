@@ -99,7 +99,7 @@ int status;
 // arbitrary-precision numbers
 
 namespace {
-bool parse_sign() {
+bool sign() {
   switch (*src) {
   case '+':
     ++src;
@@ -124,9 +124,9 @@ void digits() {
 }
 } // namespace
 
-void parse_number() {
+void parsenum() {
   buf.n = 0;
-  auto sign = parse_sign();
+  auto sgn = sign();
   auto s = src;
   digits();
   switch (*src) {
@@ -136,7 +136,7 @@ void parse_number() {
     // integer part
     buf.push(0);
     mpz_t integer;
-    mpz_init_set_str(integer, buf.p + sign, 10);
+    mpz_init_set_str(integer, buf.p + sgn, 10);
 
     // decimal part
     mpz_t decimal;
@@ -158,7 +158,7 @@ void parse_number() {
     mpz_t mantissa;
     mpz_init_set(mantissa, decimal);
     mpz_addmul(mantissa, integer, pow_scale);
-    if (sign)
+    if (sgn)
       mpz_neg(mantissa, mantissa);
 
     // exponent
@@ -166,7 +166,7 @@ void parse_number() {
     unsigned long exponent = 0;
     if (*src == 'e' || *src == 'E') {
       auto s = ++src;
-      exponent_sign = parse_sign();
+      exponent_sign = sign();
       errno = 0;
       exponent = strtoul(src, (char **)&src, 10);
       if (errno) {

@@ -107,7 +107,7 @@ loop:
   case '-':
     if ('0' <= s[1] && s[1] <= '9') {
       tok = k_term;
-      parse_number();
+      parsenum();
       return;
     }
     break;
@@ -132,7 +132,7 @@ loop:
   case '8':
   case '9':
     tok = k_term;
-    parse_number();
+    parsenum();
     return;
   case '<':
     switch (s[1]) {
