@@ -115,7 +115,10 @@ term *nnf(vec<std::pair<term *, term *>> &all_vars,
   case Eqv: {
     auto x = ren_eqv(nnf(all_vars, exists_vars, true, at(a, 0)));
     auto y = ren_eqv(nnf(all_vars, exists_vars, true, at(a, 1)));
-    return mk(And, mk(Or, nnf_literal(false, x), nnf_literal(pol, y)),
+    return mk(And,
+              // x => y
+              mk(Or, nnf_literal(false, x), nnf_literal(pol, y)),
+              // x <= y
               mk(Or, nnf_literal(true, x), nnf_literal(!pol, y)));
   }
   case All:
