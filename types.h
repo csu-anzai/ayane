@@ -19,11 +19,11 @@ struct type {
 };
 
 // globals
-extern type Bool;
-extern type Ind;
-extern type Int;
-extern type Rat;
-extern type Real;
+extern type bool1;
+extern type ind1;
+extern type int1;
+extern type rat1;
+extern type real1;
 
 // construct
 type *mkty(sym *name);

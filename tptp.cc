@@ -281,19 +281,19 @@ type *read_type() {
     switch (keyword(toksym)) {
     case w_i:
       lex();
-      return &Ind;
+      return &ind1;
     case w_int:
       lex();
-      return &Int;
+      return &int1;
     case w_o:
       lex();
-      return &Bool;
+      return &bool1;
     case w_rat:
       lex();
-      return &Rat;
+      return &rat1;
     case w_real:
       lex();
-      return &Real;
+      return &real1;
     }
     err("unknown word");
   case o_word: {
@@ -481,7 +481,7 @@ term *atomic_term() {
     lex();
 
     if (!name->val) {
-      name->val = var(&Ind);
+      name->val = var(&ind1);
       name->is_term = true;
     }
 
@@ -494,7 +494,7 @@ term *atomic_term() {
     lex();
 
     if (!name->val) {
-      name->val = constant(&Ind, name);
+      name->val = constant(&ind1, name);
       name->is_term = true;
     }
 
@@ -533,7 +533,7 @@ term *quantified(tag_t tag) {
     auto name = toksym;
     lex();
     old.push(std::make_pair(name, (term *)name->val));
-    auto ty = &Ind;
+    auto ty = &ind1;
     if (eat(':'))
       ty = read_type();
     auto a = var(ty);

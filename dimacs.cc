@@ -67,7 +67,7 @@ loop:
 }
 
 term *num() {
-  auto a = constant(&Bool, toksym);
+  auto a = constant(&bool1, toksym);
   lex();
   return a;
 }

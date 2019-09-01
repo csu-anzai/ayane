@@ -44,18 +44,18 @@ type *term::ty() {
   case t_not:
   case t_or:
   case t_true:
-    return &Bool;
+    return &bool1;
   case t_distinct_object:
-    return &Ind;
+    return &ind1;
   case t_id:
   case t_var:
     return ty_;
   case t_int:
-    return &Int;
+    return &int1;
   case t_rat:
-    return &Rat;
+    return &rat1;
   case t_real:
-    return &Real;
+    return &real1;
   }
   assert(false);
   return 0;
