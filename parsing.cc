@@ -179,7 +179,7 @@ void parsenum() {
     mpz_ui_pow_ui(pow_exponent, 10, exponent);
 
     // result
-    tokterm = atom(t_real, sizeof(mpq_t));
+    tokterm = atom(Real, sizeof(mpq_t));
     mpq_init(tokterm->rat_val);
     mpq_set_num(tokterm->rat_val, mantissa);
     mpq_set_den(tokterm->rat_val, pow_scale);
@@ -203,7 +203,7 @@ void parsenum() {
     buf.push(*src++);
     digits();
     buf.push(0);
-    tokterm = atom(t_rat, sizeof(mpq_t));
+    tokterm = atom(Rat, sizeof(mpq_t));
     mpq_init(tokterm->rat_val);
     if (mpq_set_str(tokterm->rat_val, buf.p, 10))
       err("invalid number");
@@ -211,7 +211,7 @@ void parsenum() {
     break;
   default:
     buf.push(0);
-    tokterm = atom(t_int, sizeof(mpz_t));
+    tokterm = atom(Int, sizeof(mpz_t));
     mpz_init_set_str(tokterm->int_val, buf.p, 10);
     break;
   }

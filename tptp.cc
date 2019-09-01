@@ -81,7 +81,7 @@ loop:
   case '"':
     tok = o_term;
     quote();
-    tokterm = atom(t_distinct_object, sizeof(type *) + sizeof(sym *));
+    tokterm = atom(DistinctObj, sizeof(type *) + sizeof(sym *));
     tokterm->name = toksym;
     return;
   case '$':
@@ -398,74 +398,74 @@ term *atomic_term() {
     vec<term *> v;
     switch (keyword(toksym)) {
     case w_ceiling:
-      return defined_functor(t_ceil, 1);
+      return defined_functor(Ceil, 1);
     case w_difference:
-      return defined_functor(t_sub, 2);
+      return defined_functor(Sub, 2);
     case w_distinct: {
       vec<term *> clauses;
       lex();
       args(v);
       for (auto i = v.begin(); i != v.end(); ++i)
         for (auto j = v.begin(); j != i; ++j)
-          clauses.push(mk(t_not, mk(t_eq, *i, *j)));
-      return mk(t_and, clauses);
+          clauses.push(mk(Not, mk(Eq, *i, *j)));
+      return mk(And, clauses);
     }
     case w_false:
       lex();
       return &false1;
     case w_floor:
-      return defined_functor(t_floor, 1);
+      return defined_functor(Floor, 1);
     case w_greater:
       lex();
       args(v, 2);
-      return mk(t_less, v[1], v[0]);
+      return mk(Less, v[1], v[0]);
     case w_greatereq:
       lex();
       args(v, 2);
-      return mk(t_or, mk(t_less, v[1], v[0]), mk(t_eq, v[1], v[0]));
+      return mk(Or, mk(Less, v[1], v[0]), mk(Eq, v[1], v[0]));
     case w_is_int:
-      return defined_functor(t_is_int, 1);
+      return defined_functor(IsInt, 1);
     case w_is_rat:
-      return defined_functor(t_is_rat, 1);
+      return defined_functor(IsRat, 1);
     case w_less:
-      return defined_functor(t_less, 2);
+      return defined_functor(Less, 2);
     case w_lesseq:
       lex();
       args(v, 2);
-      return mk(t_or, mk(t_less, v[0], v[1]), mk(t_eq, v[0], v[1]));
+      return mk(Or, mk(Less, v[0], v[1]), mk(Eq, v[0], v[1]));
     case w_product:
-      return defined_functor(t_mul, 2);
+      return defined_functor(Mul, 2);
     case w_quotient:
-      return defined_functor(t_div, 2);
+      return defined_functor(Div, 2);
     case w_quotient_e:
-      return defined_functor(t_div_e, 2);
+      return defined_functor(DivE, 2);
     case w_quotient_f:
-      return defined_functor(t_div_f, 2);
+      return defined_functor(DivF, 2);
     case w_quotient_t:
-      return defined_functor(t_div_t, 2);
+      return defined_functor(DivT, 2);
     case w_remainder_e:
-      return defined_functor(t_rem_e, 2);
+      return defined_functor(RemE, 2);
     case w_remainder_f:
-      return defined_functor(t_rem_f, 2);
+      return defined_functor(RemF, 2);
     case w_remainder_t:
-      return defined_functor(t_rem_t, 2);
+      return defined_functor(RemT, 2);
     case w_round:
-      return defined_functor(t_round, 1);
+      return defined_functor(Round, 1);
     case w_sum:
-      return defined_functor(t_add, 2);
+      return defined_functor(Add, 2);
     case w_to_int:
-      return defined_functor(t_to_int, 1);
+      return defined_functor(ToInt, 1);
     case w_to_rat:
-      return defined_functor(t_to_rat, 1);
+      return defined_functor(ToRat, 1);
     case w_to_real:
-      return defined_functor(t_to_real, 1);
+      return defined_functor(ToReal, 1);
     case w_true:
       lex();
       return &true1;
     case w_truncate:
-      return defined_functor(t_trunc, 1);
+      return defined_functor(Trunc, 1);
     case w_uminus:
-      return defined_functor(t_minus, 1);
+      return defined_functor(Minus, 1);
     }
     err("unknown word");
   }
@@ -503,7 +503,7 @@ term *atomic_term() {
 
     vec<term *> v;
     args(v);
-    return mk(t_call, (term *)name->val, v);
+    return mk(Call, (term *)name->val, v);
   }
   }
   err("syntax error");
@@ -514,10 +514,10 @@ term *infix_unary() {
   switch (tok) {
   case '=':
     lex();
-    return mk(t_eq, a, atomic_term());
+    return mk(Eq, a, atomic_term());
   case o_ne:
     lex();
-    return mk(t_not, mk(t_eq, a, atomic_term()));
+    return mk(Not, mk(Eq, a, atomic_term()));
   }
   return a;
 }
@@ -552,7 +552,7 @@ term *quantified(tag_t tag) {
 term *unitary_formula() {
   switch (tok) {
   case '!':
-    return quantified(t_all);
+    return quantified(All);
   case '(': {
     lex();
     auto a = logic_formula();
@@ -560,10 +560,10 @@ term *unitary_formula() {
     return a;
   }
   case '?':
-    return quantified(t_exists);
+    return quantified(Exists);
   case '~':
     lex();
-    return mk(t_not, unitary_formula());
+    return mk(Not, unitary_formula());
   }
   return infix_unary();
 }
@@ -577,16 +577,16 @@ term *logic_formula() {
     do
       v.push(unitary_formula());
     while (eat('&'));
-    return mk(t_and, a, v);
+    return mk(And, a, v);
   case '|':
     lex();
     do
       v.push(unitary_formula());
     while (eat('|'));
-    return mk(t_or, a, v);
+    return mk(Or, a, v);
   case o_eqv:
     lex();
-    return mk(t_eqv, a, unitary_formula());
+    return mk(Eqv, a, unitary_formula());
   case o_imp:
     lex();
     return implies(a, unitary_formula());
@@ -595,13 +595,13 @@ term *logic_formula() {
     return implies(unitary_formula(), a);
   case o_nand:
     lex();
-    return mk(t_not, mk(t_and, a, unitary_formula()));
+    return mk(Not, mk(And, a, unitary_formula()));
   case o_nor:
     lex();
-    return mk(t_not, mk(t_or, a, unitary_formula()));
+    return mk(Not, mk(Or, a, unitary_formula()));
   case o_xor:
     lex();
-    return mk(t_not, mk(t_eqv, a, unitary_formula()));
+    return mk(Not, mk(Eqv, a, unitary_formula()));
   }
   return a;
 }
@@ -667,7 +667,7 @@ void annotated_formula() {
     auto a = logic_formula();
     if (role == keywords + w_conjecture) {
       get_free_vars(a);
-      a = mk(t_not, mk(t_all, a, free_vars));
+      a = mk(Not, mk(All, a, free_vars));
       conjecture = true;
     }
     cnf(a);

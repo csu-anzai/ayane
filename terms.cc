@@ -30,31 +30,31 @@ void clearmem() { mem = mem_begin; }
 
 type *term::ty() {
   switch (tag) {
-  case t_add:
-  case t_call:
-  case t_mul:
-  case t_sub:
+  case Add:
+  case Call:
+  case Mul:
+  case Sub:
     return args[0]->ty();
-  case t_all:
-  case t_and:
-  case t_eq:
-  case t_eqv:
-  case t_exists:
-  case t_false:
-  case t_not:
-  case t_or:
-  case t_true:
+  case All:
+  case And:
+  case Eq:
+  case Eqv:
+  case Exists:
+  case False:
+  case Not:
+  case Or:
+  case True:
     return &bool1;
-  case t_distinct_object:
+  case DistinctObj:
     return &ind1;
-  case t_id:
-  case t_var:
+  case Id:
+  case Var:
     return ty_;
-  case t_int:
+  case Int:
     return &int1;
-  case t_rat:
+  case Rat:
     return &rat1;
-  case t_real:
+  case Real:
     return &real1;
   }
   assert(false);
@@ -63,8 +63,8 @@ type *term::ty() {
 
 // globals
 
-term false1 = {t_false};
-term true1 = {t_true};
+term false1 = {False};
+term true1 = {True};
 
 // construct
 
@@ -76,14 +76,14 @@ term *atom(tag_t tag, int bytes) {
 }
 
 term *constant(type *ty, sym *name) {
-  auto r = atom(t_id, sizeof(type *) + sizeof(sym *));
+  auto r = atom(Id, sizeof(type *) + sizeof(sym *));
   r->ty_ = ty;
   r->name = name;
   return r;
 }
 
 term *var(type *ty) {
-  auto r = atom(t_var, sizeof(type *));
+  auto r = atom(Var, sizeof(type *));
   r->ty_ = ty;
   return r;
 }
@@ -129,15 +129,15 @@ term *mk(tag_t tag, const vec<term *> &v) {
   return r;
 }
 
-term *implies(term *a, term *b) { return mk(t_or, mk(t_not, a), b); }
+term *implies(term *a, term *b) { return mk(Or, mk(Not, a), b); }
 
 namespace {
 vec<term *> bound_vars;
 
 void get_free_vars1(term *a) {
   switch (a->tag) {
-  case t_all:
-  case t_exists: {
+  case All:
+  case Exists: {
     auto old_size = bound_vars.n;
     for (int i = 1; i != a->n; ++i)
       bound_vars.push(at(a, i));
@@ -145,7 +145,7 @@ void get_free_vars1(term *a) {
     bound_vars.resize(old_size);
     return;
   }
-  case t_var:
+  case Var:
     if (std::find(bound_vars.begin(), bound_vars.end(), a) != bound_vars.end())
       return;
     if (std::find(free_vars.begin(), free_vars.end(), a) != free_vars.end())
@@ -179,10 +179,10 @@ bool eq(term *a, term *b) {
 
   // atoms
   switch (a->tag) {
-  case t_int:
+  case Int:
     return mpz_cmp(a->int_val, b->int_val) == 0;
-  case t_rat:
-  case t_real:
+  case Rat:
+  case Real:
     return mpq_equal(a->rat_val, b->rat_val);
   }
   if (!a->n)
@@ -222,7 +222,7 @@ namespace {
 vec<std::pair<term *, term *>> vars;
 
 term *fresh_vars(term *a) {
-  if (a->tag == t_var) {
+  if (a->tag == Var) {
     for (auto p : vars)
       if (p.first == a)
         return p.second;
