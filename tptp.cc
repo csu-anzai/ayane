@@ -35,15 +35,15 @@ selection select(true);
 
 void word() {
   auto s = src;
-    while (('a' <= *s && *s <= 'z') || ('A' <= *s && *s <= 'Z') ||
-           ('0' <= *s && *s <= '9') || *s == '_')
-      ++s;
+  while (('a' <= *s && *s <= 'z') || ('A' <= *s && *s <= 'Z') ||
+         ('0' <= *s && *s <= '9') || *s == '_')
+    ++s;
   toksym = intern(src, s - src);
   src = s;
 }
 
 void quote() {
-  buf.n=0;
+  buf.n = 0;
   auto s = src;
   auto q = *s++;
   while (*s != q) {
@@ -91,15 +91,15 @@ loop:
     return;
   case '%':
 #ifdef DEBUG
-if(!status)
-	for(;*s!='\n';++s){
-      for (int i = 1; i != n_szs; ++i)
-        if (!memcmp(s, szs[i],strlen(szs[i]))){
-          status = i;
-    src = strchr(s, '\n');
-    goto loop;
-        }
-}
+    if (!status)
+      for (; *s != '\n'; ++s) {
+        for (int i = 1; i != n_szs; ++i)
+          if (!memcmp(s, szs[i], strlen(szs[i]))) {
+            status = i;
+            src = strchr(s, '\n');
+            goto loop;
+          }
+      }
 #endif
     src = strchr(s, '\n');
     goto loop;
@@ -255,13 +255,13 @@ bool eat(int k) {
   return false;
 }
 
-void expect(char k){
-	if(eat(k))
-		return;
-		char buf[16];
-		sprintf(buf,"Expected '%c'",k);
-		err(buf);
-	}
+void expect(char k) {
+  if (eat(k))
+    return;
+  char buf[16];
+  sprintf(buf, "Expected '%c'", k);
+  err(buf);
+}
 
 // types
 
@@ -273,10 +273,10 @@ type *read_type() {
     do
       v.push(read_type());
     while (eat('*'));
-    if(!eat(')'))
-    	err("Expected ')'");
-    if(!eat('>'))
-    	err("Expected '>'");
+    if (!eat(')'))
+      err("Expected ')'");
+    if (!eat('>'))
+      err("Expected '>'");
     return make_type(read_type(), v);
   }
   case k_dollar_word:
@@ -311,14 +311,14 @@ type *read_type() {
     return ty;
   }
   }
-      err("Expected type");
+  err("Expected type");
 }
 
 void typing() {
   if (eat('(')) {
     typing();
-    if(!eat(')'))
-    	err("Expected ')'");
+    if (!eat(')'))
+      err("Expected ')'");
     return;
   }
 
@@ -365,13 +365,13 @@ term *unitary_formula();
 term *logic_formula();
 
 void args(vec<term *> &v) {
-    if(!eat('('))
-    	err("Expected '('");
+  if (!eat('('))
+    err("Expected '('");
   do
     v.push(atomic_term());
   while (eat(','));
-    if(!eat(')'))
-    	err("Expected ')'");
+  if (!eat(')'))
+    err("Expected ')'");
 }
 
 void args(vec<term *> &v, int arity) {
@@ -754,6 +754,4 @@ void read_tptp1(const char *filename) {
 }
 } // namespace
 
-void read_tptp(const char *filename) {
-  read_tptp1(filename);
-}
+void read_tptp(const char *filename) { read_tptp1(filename); }

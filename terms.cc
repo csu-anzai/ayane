@@ -162,7 +162,7 @@ vec<term *> free_vars;
 
 void get_free_vars(term *a) {
   assert(!bound_vars.n);
-  free_vars.n=0;
+  free_vars.n = 0;
   get_free_vars1(a);
 }
 
@@ -219,14 +219,14 @@ void make_clause() {}
 // etc
 
 namespace {
-vec< std::pair<term *, term *>> vars;
+vec<std::pair<term *, term *>> vars;
 
 term *fresh_vars(term *a) {
   if (a->tag == t_var) {
     for (auto p : vars)
       if (p.first == a)
         return p.second;
-    auto p =  std::make_pair(a, var(a->ty_));
+    auto p = std::make_pair(a, var(a->ty_));
     vars.push(p);
     return p.second;
   }
@@ -246,7 +246,7 @@ clause *fresh_vars(clause *c) {
   d->dead = false;
   d->neg_n = c->neg_n;
   d->n = c->n;
-  vars.n=0;
+  vars.n = 0;
   for (auto i : c)
     d->literals[i] = fresh_vars(at(c, i));
   return d;

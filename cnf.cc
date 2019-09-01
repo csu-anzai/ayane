@@ -90,19 +90,20 @@ term *nnf_all(vec<std::pair<term *, term *>> &all_vars,
   for (int i = 1; i != a->n; ++i)
     all_vars[old_size + i - 1] = std::make_pair(at(a, i), var(at(a, i)->ty()));
   a = nnf(all_vars, exists_vars, pol, at(a, 0));
-  all_vars.n=old_size;
+  all_vars.n = old_size;
   return a;
 }
 
 term *nnf_exists(vec<std::pair<term *, term *>> &all_vars,
-                 vec<std::pair<term *, term *>> &exists_vars, bool pol, term *a) {
+                 vec<std::pair<term *, term *>> &exists_vars, bool pol,
+                 term *a) {
   auto old_size = exists_vars.n;
   exists_vars.resize(old_size + a->n - 1);
   for (int i = 1; i != a->n; ++i)
     exists_vars[old_size + i - 1] =
         std::make_pair(at(a, i), skolem(at(a, i)->ty(), all_vars));
   a = nnf(all_vars, exists_vars, pol, at(a, 0));
-  exists_vars.n=old_size;
+  exists_vars.n = old_size;
   return a;
 }
 

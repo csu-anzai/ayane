@@ -125,7 +125,7 @@ void digits() {
 } // namespace
 
 void parse_number() {
-  buf.n=0;
+  buf.n = 0;
   auto sign = parse_sign();
   auto s = src;
   digits();
@@ -143,7 +143,7 @@ void parse_number() {
     mpz_init(decimal);
     unsigned scale = 0;
     if (*src == '.') {
-      buf.n=0;
+      buf.n = 0;
       src++;
       digits();
       buf.push(0);

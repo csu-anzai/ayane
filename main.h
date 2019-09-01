@@ -10,8 +10,8 @@
 
 #include <algorithm>
 #include <iterator>
-#include <utility>
 #include <unordered_set>
+#include <utility>
 
 #include <gmp.h>
 
@@ -21,14 +21,14 @@
 
 // containers
 #include "map.h"
+#include "range.h"
 #include "set.h"
 #include "slice.h"
 #include "vec.h"
-#include "range.h"
 
 // specific
-#include "sym.h"
 #include "keywords.h"
+#include "sym.h"
 
 #include "types.h"
 

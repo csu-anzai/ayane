@@ -18,7 +18,7 @@ struct key {
 
   sym *store() const {
     auto r = (sym *)mmalloc(offsetof(sym, s) + n);
-  r->val = 0;
+    r->val = 0;
     r->n = n;
     memcpy(r->s, s, n);
     return r;

@@ -44,17 +44,17 @@ loop:
     return;
   case 'c':
 #ifdef DEBUG
-if(!status)
-	for(;*s!='\n';++s){
-if(!memcmp(s,"SAT",3)){
-	status=Satisfiable;
-	break;
-}
-if(!memcmp(s,"UNSAT",5)){
-	status=Unsatisfiable;
-	break;
-	}
-}
+    if (!status)
+      for (; *s != '\n'; ++s) {
+        if (!memcmp(s, "SAT", 3)) {
+          status = Satisfiable;
+          break;
+        }
+        if (!memcmp(s, "UNSAT", 5)) {
+          status = Unsatisfiable;
+          break;
+        }
+      }
 #endif
     src = strchr(s, '\n');
     goto loop;

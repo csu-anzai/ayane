@@ -9,11 +9,11 @@ template <class T, int small = 4> struct vec {
   T *p = v;
   T v[small];
 
-  vec(int n):n(n){
+  vec(int n) : n(n) {
     if (n <= cap)
       return;
     cap = n;
-      p = (T *)xmalloc(cap * sizeof(T));
+    p = (T *)xmalloc(cap * sizeof(T));
   }
 
   vec() : n(0) {}
