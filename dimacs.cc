@@ -81,16 +81,16 @@ void read_dimacs(const char *filename) {
       ++src;
 
     if (!(src[0] == 'c' && src[1] == 'n' && src[2] == 'f'))
-      err("'cnf' expected");
+      err("Expected 'cnf'");
     src += 3;
     lex();
 
     if (tok != k_num)
-      err("count expected");
+      err("Expected count");
     lex();
 
     if (tok != k_num)
-      err("count expected");
+      err("Expected count");
     lex();
   }
   for (;;)
@@ -110,6 +110,6 @@ void read_dimacs(const char *filename) {
       lex();
       break;
     default:
-      err("syntax error");
+      err("Syntax error");
     }
 }

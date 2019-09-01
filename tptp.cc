@@ -7,8 +7,8 @@ enum {
   k_dollar_word,
   k_eof,
   k_eqv,
-  k_implies,
-  k_impliesr,
+  k_imp,
+  k_impr,
   k_nand,
   k_ne,
   k_nor,
@@ -114,11 +114,11 @@ loop:
   case '/':
     if (s[1] != '*') {
       src = s + 1;
-      err("'*' expected");
+      err("Expected '*'");
     }
     for (s += 2; !(s[0] == '*' && s[1] == '/'); ++s)
       if (!*s)
-        err("unclosed comment");
+        err("Unclosed comment");
     src = s + 2;
     goto loop;
   case '0':
@@ -143,7 +143,7 @@ loop:
         return;
       }
       src = s + 2;
-      tok = k_impliesr;
+      tok = k_impr;
       return;
     case '~':
       if (s[2] == '>') {
@@ -152,14 +152,14 @@ loop:
         return;
       }
       toksrc = s + 1;
-      err("'>' expected");
+      err("Expected '>'");
     }
     break;
   case '=':
     switch (s[1]) {
     case '>':
       src = s + 2;
-      tok = k_implies;
+      tok = k_imp;
       return;
     }
     break;
@@ -273,10 +273,8 @@ type *read_type() {
     do
       v.push(read_type());
     while (eat('*'));
-    if (!eat(')'))
-      err("Expected ')'");
-    if (!eat('>'))
-      err("Expected '>'");
+    expect(')');
+    expect('>');
     return make_type(read_type(), v);
   }
   case k_dollar_word:
@@ -317,8 +315,7 @@ type *read_type() {
 void typing() {
   if (eat('(')) {
     typing();
-    if (!eat(')'))
-      err("Expected ')'");
+    expect(')');
     return;
   }
 
@@ -376,8 +373,16 @@ void args(vec<term *> &v) {
 
 void args(vec<term *> &v, int arity) {
   args(v);
-  if (v.n != arity)
-    err("Unexpected argument count");
+  if (v.n == arity)
+    return;
+  char buf[32];
+  sprintf(buf, "Expected %d argument", arity);
+  if (arity != 1) {
+    auto i = strlen(buf);
+    buf[i] = 's';
+    buf[i + 1] = 0;
+  }
+  err(buf);
 }
 
 term *defined_functor(tag_t tag, int arity) {
@@ -524,7 +529,7 @@ term *quantified(tag_t tag) {
   vec<term *> vars;
   do {
     if (tok != k_var)
-      err("variable expected");
+      err("Expected variable");
     auto name = toksym;
     lex();
     old.push(std::make_pair(name, (term *)name->val));
@@ -582,10 +587,10 @@ term *logic_formula() {
   case k_eqv:
     lex();
     return make(t_eqv, a, unitary_formula());
-  case k_implies:
+  case k_imp:
     lex();
     return implies(a, unitary_formula());
-  case k_impliesr:
+  case k_impr:
     lex();
     return implies(unitary_formula(), a);
   case k_nand:
@@ -609,7 +614,7 @@ void ignore() {
       ignore();
     break;
   case 0:
-    err("unexpected end of file");
+    err("Unexpected end of file");
   case '(':
     lex();
     while (!eat(')'))
@@ -631,7 +636,7 @@ term *formula_name() {
   case k_word:
     return atomic_term();
   }
-  err("formula name expected");
+  err("Expected formula name");
 }
 
 // top level
@@ -648,7 +653,7 @@ void annotated_formula() {
 
   // role
   if (tok != k_word)
-    err("role expected");
+    err("Expected role");
   auto role = toksym;
   if (role == keywords + w_conjecture && conjecture)
     err("multiple conjectures not supported");
@@ -687,7 +692,7 @@ void include() {
 
   // filename
   if (tok != k_word)
-    err("filename expected");
+    err("Expected filename");
   auto n = strlen(tptp);
   vec<char> filename1(n + toksym->n + 2);
   memcpy(filename1.p, tptp, n);
@@ -737,7 +742,7 @@ void read_tptp1(const char *filename) {
   lex();
   while (tok != k_eof) {
     if (tok != k_word)
-      err("formula expected");
+      err("Expected formula");
     switch (keyword(toksym)) {
     case w_cnf:
     case w_fof:
