@@ -63,8 +63,8 @@ type *term::ty() {
 
 // globals
 
-term False = {t_false};
-term True = {t_true};
+term false1 = {t_false};
+term true1 = {t_true};
 
 // construct
 

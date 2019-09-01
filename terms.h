@@ -63,9 +63,9 @@ struct term {
 };
 
 // globals
-extern term False;
-extern term True;
-inline term *make(bool b) { return b ? &True : &False; }
+extern term false1;
+extern term true1;
+inline term *make(bool b) { return b ? &true1 : &false1; }
 
 // construct
 term *atom(tag_t tag, int bytes);

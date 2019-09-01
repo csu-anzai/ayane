@@ -412,7 +412,7 @@ term *atomic_term() {
     }
     case w_false:
       lex();
-      return &False;
+      return &false1;
     case w_floor:
       return defined_functor(t_floor, 1);
     case w_greater:
@@ -461,7 +461,7 @@ term *atomic_term() {
       return defined_functor(t_to_real, 1);
     case w_true:
       lex();
-      return &True;
+      return &true1;
     case w_truncate:
       return defined_functor(t_trunc, 1);
     case w_uminus:
