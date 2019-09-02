@@ -1,6 +1,7 @@
 *.asm
 *.exe
 *.ilk
+*.lst
 *.obj
 *.pdb
 *.zip
