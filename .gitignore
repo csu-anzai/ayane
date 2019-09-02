@@ -7,6 +7,7 @@
 *.zip
 .vs/
 ayane.sln
+pic/
 
 # Prerequisites
 *.d

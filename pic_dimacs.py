@@ -66,7 +66,7 @@ for filename in files:
         os.mkdir("pic")
     except:
         pass
-    base = os.path.splitext(filename)[0]
+    base = os.path.splitext(os.path.basename(filename))[0]
     f = open("pic/" + base + ".png", "wb")
     w.write(f, rows)
     f.close()
